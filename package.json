@@ -1,0 +1,72 @@
+{
+  "name": "react-single-instance",
+  "version": "0.1.0",
+  "description": "Render a component at most once for a given id, app-wide - safely absorbs React.StrictMode's dev double-invoke",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p playground",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "playground": "npm --prefix playground run dev",
+    "playground:build": "npm run build && npm --prefix playground install && npm --prefix playground run build",
+    "playground:preview": "npm --prefix playground run preview",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"playground/src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"playground/src/**/*.{ts,tsx}\""
+  },
+  "keywords": [
+    "react",
+    "strict-mode",
+    "singleton",
+    "idempotent",
+    "hook",
+    "hoc",
+    "modal",
+    "guard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itaym/react-single-instance.git"
+  },
+  "author": "Itay Merchav",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/itaym/react-single-instance/issues"
+  },
+  "homepage": "https://github.com/itaym/react-single-instance#readme",
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/node": "^20.14.15",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "happy-dom": "^20.14.0",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.11"
+  }
+}

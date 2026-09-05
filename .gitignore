@@ -1,0 +1,11 @@
+.idea
+node_modules
+
+# build output
+dist
+playground/dist
+
+# caches
+.vite
+*.tsbuildinfo
+coverage
