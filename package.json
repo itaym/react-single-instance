@@ -1,6 +1,6 @@
 {
   "name": "react-single-instance",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Render a component at most once for a given id, app-wide - safely absorbs React.StrictMode's dev double-invoke",
   "type": "module",
   "main": "./dist/index.cjs",
