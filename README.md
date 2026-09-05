@@ -4,6 +4,12 @@
 
 Render something at most once for a given `id`, app-wide - a component, a hook, and a HOC, all sharing one registry. Useful for a modal root, a toast host, or any other element that must exist exactly once even if it gets mounted from more than one place by mistake.
 
+| | first claimant | every claimant after it |
+| --- | --- | --- |
+| `<SingleInstance id="x">children</SingleInstance>` | renders `children` | renders nothing |
+| `useSingleInstance('x')` | returns `true` | returns `false` |
+| `withSingleInstance(Component, 'x')` | renders `<Component />` | renders nothing |
+
 ```bash
 npm i react-single-instance
 ```
@@ -50,11 +56,13 @@ const GuardedModalHost = withSingleInstance(ModalHost, 'modal-root');
 
 ## Playground
 
-A live demo of all three APIs, including the re-render and reset behavior:
+An interactive demo of all three APIs side by side, with the source for each shown right next to it:
 
 ```bash
 npm run playground
 ```
+
+Click "mount another claimant" to watch new attempts get rejected live, "re-render" to confirm a granted instance never loses its slot, and "unmount" to see that removing a claimant doesn't free its id - only `initSingleInstance()` does that.
 
 ## Development
 
