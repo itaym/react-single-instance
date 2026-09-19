@@ -15,10 +15,7 @@ npm i react-single-instance
 ```
 
 ```tsx
-import { initSingleInstance, SingleInstance, useSingleInstance, withSingleInstance } from 'react-single-instance';
-
-// once, at app startup, before anything below renders
-initSingleInstance();
+import { SingleInstance, useSingleInstance, withSingleInstance } from 'react-single-instance';
 ```
 
 ## `<SingleInstance>`
@@ -46,13 +43,9 @@ function ModalHost() {
 const GuardedModalHost = withSingleInstance(ModalHost, 'modal-root');
 ```
 
-## Why this needs `initSingleInstance()`
+## `initSingleInstance()`
 
-`React.StrictMode` invokes a function component's render body twice, back to back, in development only. There's no purity-safe way, from inside render, to tell "this is my own StrictMode replay" apart from "this is a genuinely different caller" - so the registry allows exactly two claims per id before rejecting the rest, which absorbs StrictMode's double-invoke without ever risking a real mount silently rendering nothing.
-
-`initSingleInstance()` resets the registry. Call it once, synchronously, before your app renders anything that uses an id you care about - a hot reload, a new test, or a route remount that should be allowed to claim an id again all need this. Skipping it doesn't break anything by itself, but you'll get a console warning the first time an id is claimed, since un-reset ids never free up.
-
-**Known limitation:** two genuinely different call sites that both mount with the same `id` in the same commit, *outside* of StrictMode, will both be granted - the two-slot slack that makes StrictMode safe is indistinguishable, from inside render, from two real callers. Run under StrictMode (React's development default) and a real duplicate's own two extra invocations get caught immediately; without it, a duplicate that stays mounted is still caught the moment a third claimant shows up, or after the next `initSingleInstance()` cycle.
+Not required — claims release automatically when their component unmounts. Kept for compatibility with earlier versions, and as a manual way to reset the registry (e.g. in tests).
 
 ## Playground
 
@@ -62,7 +55,7 @@ An interactive demo of all three APIs side by side, with the source for each sho
 npm run playground
 ```
 
-Click "mount another claimant" to watch new attempts get rejected live, "re-render" to confirm a granted instance never loses its slot, and "unmount" to see that removing a claimant doesn't free its id - only `initSingleInstance()` does that.
+Click "mount another claimant" to watch new attempts get rejected live, "re-render" to confirm a granted instance never loses its slot, and "unmount" to see that removing a claimant frees its id for the next one.
 
 ## Development
 

@@ -1,16 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { claimSingleInstance, initSingleInstance, __resetSingleInstanceForTests } from './registry';
+import {
+  claimSingleInstance,
+  initSingleInstance,
+  releaseSingleInstance,
+  __resetSingleInstanceForTests,
+} from './registry';
 
 beforeEach(() => {
   __resetSingleInstanceForTests();
 });
 
 afterEach(() => {
-  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe('claimSingleInstance', () => {
-  it('allows exactly two claims per id, then rejects the rest', () => {
+  it('allows exactly two claims per id outside production, then rejects the rest', () => {
     initSingleInstance();
     expect(claimSingleInstance('x')).toBe(true);
     expect(claimSingleInstance('x')).toBe(true);
@@ -27,25 +32,36 @@ describe('claimSingleInstance', () => {
     expect(claimSingleInstance('x')).toBe(true);
   });
 
-  it('warns once per un-initialized claim outside production', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    claimSingleInstance('never-initialized');
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0][0]).toContain('initSingleInstance()');
-  });
-
-  it('does not warn once initialized', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    initSingleInstance();
-    claimSingleInstance('z');
-    expect(warn).not.toHaveBeenCalled();
-  });
-
-  it('does not warn in production even when un-initialized', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('allows exactly one claim per id in production', () => {
     vi.stubEnv('NODE_ENV', 'production');
-    claimSingleInstance('prod-id');
-    expect(warn).not.toHaveBeenCalled();
-    vi.unstubAllEnvs();
+    initSingleInstance();
+    expect(claimSingleInstance('p')).toBe(true);
+    expect(claimSingleInstance('p')).toBe(false);
+  });
+});
+
+describe('releaseSingleInstance', () => {
+  it('frees a claimed id so it can be claimed again', () => {
+    initSingleInstance();
+    expect(claimSingleInstance('r')).toBe(true);
+    expect(claimSingleInstance('r')).toBe(true);
+    expect(claimSingleInstance('r')).toBe(false);
+    releaseSingleInstance('r');
+    expect(claimSingleInstance('r')).toBe(true);
+  });
+
+  it('is a no-op on an id that was never claimed', () => {
+    initSingleInstance();
+    expect(() => releaseSingleInstance('never-claimed')).not.toThrow();
+    expect(claimSingleInstance('never-claimed')).toBe(true);
+  });
+
+  it('is a no-op when called more times than claimed', () => {
+    initSingleInstance();
+    expect(claimSingleInstance('s')).toBe(true);
+    releaseSingleInstance('s');
+    releaseSingleInstance('s');
+    releaseSingleInstance('s');
+    expect(claimSingleInstance('s')).toBe(true);
   });
 });
